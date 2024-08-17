@@ -6,25 +6,28 @@
 #include <unistd.h>
 #include "connection_info.hpp"
 
+using namespace std;
+
 void messageReader(char *buffer)
 {
-    std::cout << "Message from client: " << buffer << std::endl;
+    cout << "Message from client: " << buffer << endl;
 };
 
-void fileWriter(char *buffer, std::ofstream &MessagesFile)
+void fileWriter(char *buffer, ofstream &MessagesFile)
 {
-    std::cout << "Message: " << buffer << std::endl;
+    cout << "Message: " << buffer << endl;
 
-    MessagesFile << buffer << std::endl;
+    MessagesFile << buffer << endl;
 };
 
 int main()
 {
 
-    std::ofstream MessagesFile("messages.txt");
+    ofstream MessagesFile("messages.txt");
 
-    if (comType != 1) {
-        std::remove("messages.txt");
+    if (comType != 1)
+    {
+        remove("messages.txt");
         MessagesFile.close();
     }
 
@@ -65,14 +68,14 @@ int main()
                 break;
             }
         default:
-            std::cout << "Huh, that's not an option \n"
-                      << std::endl;
+            cout << "How did you get here?"
+                      << endl;
             break;
         }
 
         if (strcmp(buffer, "TERMINATE_SERVER") == 0)
         {
-            std::cout << "Stopping Server" << std::endl;
+            cout << "Stopping Server" << endl;
             close(serverSocket);
             break;
         }

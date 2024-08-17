@@ -1,45 +1,93 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <string.h>
 #include "connection_info.hpp"
 
-void sendMessage(std::string text, int clientSocket) {
-        char* message = new char[text.length() + 1];
+using namespace std;
 
-        strcpy(message, text.c_str());
+void sendMessage(string text, int clientSocket)
+{
+    char *message = new char[text.length() + 1];
 
-        send(clientSocket, message, strlen(message), 0);
+    strcpy(message, text.c_str());
 
-        close(clientSocket);
+    send(clientSocket, message, strlen(message), 0);
+
+    close(clientSocket);
 }
 
-int main() {
-    
+void copyFile(string fileName, int clientSocket)
+{
+    string textFileLine;
+
+    ifstream FileToCopy(fileName);
+
+    while (getline(FileToCopy, textFileLine))
+    {
+        sendMessage(textFileLine, clientSocket);
+    }
+}
+
+int main()
+{
     while (true)
     {
-    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+        int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 
-    sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(portNumber);
-    serverAddress.sin_addr.s_addr = INADDR_ANY;
+        sockaddr_in serverAddress;
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_port = htons(portNumber);
+        serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-    connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
-        std::cout << "What do you want to say? ";
+        connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
 
-        std::string text;
+        switch (comType)
+        {
+        case 0:
+        {
+            cout << "What do you want to say? ";
 
-        std::getline(std::cin, text);
+            string text;
 
-        if (text == "TERMINATE_CLIENT") {
-            std::cout << "Closing connection";
+            getline(cin, text);
+
+            if (text == "TERMINATE_CLIENT")
+            {
+                cout << "Closing connection";
+                sendMessage(text, clientSocket);
+                return 0;
+            }
+
             sendMessage(text, clientSocket);
             break;
-        }        
+        }
 
-        sendMessage(text, clientSocket);
+        case 1: {
+            cout << "What file do you want to copy? ";
+
+            string text;
+
+            getline(cin, text);
+
+            if (text == "TERMINATE_CLIENT")
+            {
+                cout << "Closing connection";
+                sendMessage(text, clientSocket);
+                return 0;
+            }
+
+            copyFile(text, clientSocket);
+
+            break;
+        }
+
+        default:
+            cout << "What are you doing here?" << endl;
+
+            break;
+        }
     }
-    
 }
