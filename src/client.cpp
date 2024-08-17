@@ -25,10 +25,14 @@ void copyFile(string fileName, int clientSocket)
 
     ifstream FileToCopy(fileName);
 
+    string message = {};
+
     while (getline(FileToCopy, textFileLine))
     {
-        sendMessage(textFileLine, clientSocket);
+        message += textFileLine + "\n";
     }
+    
+    sendMessage(message, clientSocket);
 }
 
 int main()
